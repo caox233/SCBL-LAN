@@ -1,9 +1,9 @@
-SCBL LAN - source and local build dependency notice
+SCBL LAN - source and bundled build dependency notice
 
 The existing upstream GPL-3.0 LICENSE is retained. Native protocol/server code retains its upstream source notices (5th Echelon: https://github.com/unixoide/5th-echelon). This repository organization does not relicense third-party material.
 
 .NET/WPF, Rust crates, Google.Protobuf/gRPC and Tomlyn remain subject to their respective upstream licenses. Cargo.lock and the project files identify build dependencies. The Tomlyn notice is retained in src/launcher/src/ThirdPartyNotices.
 
-The launcher build also uses music/images, FusionFix, a diagnostic capture executable, an original Ubisoft loader and user-selected default save templates. The native audio build uses DirectX SDK headers. These 20 inputs are listed in scripts/local-assets.json and included in the local Git repository to make complete source checkouts buildable. This does not relicense third-party material or assert public redistribution clearance. No public upload has been performed by this preparation step.
+The launcher build also uses music/images, FusionFix, a diagnostic capture executable, an original Ubisoft loader and user-selected default save templates. The native audio build uses DirectX SDK headers. These 20 inputs are listed in scripts/local-assets.json and included in the repository to make complete source checkouts buildable. Publication of this repository does not relicense third-party material or change its original ownership or usage conditions.
 
-The local validation package is rebuilt from the reorganized source. No VPN client is bundled. Public source and binary publication require separate review of the retained upstream notices and these local inputs.
+Program packages are rebuilt from the source using the documented build entry. No VPN client is bundled. Retained upstream notices and the original terms applicable to bundled resources remain in effect.

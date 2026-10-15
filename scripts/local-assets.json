@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "distribution": "Bundled build inputs tracked in source; retained third-party notices apply. No public upload has been performed.",
+  "distribution": "Bundled build inputs included with the source repository; retained third-party notices and original usage conditions apply.",
   "files": {
     "src/launcher/src/logo.ico": {
       "sha256": "cd2341f8d25a5066327a0456acb70b944dcf364b5361dbe05c1c526c57999163",
