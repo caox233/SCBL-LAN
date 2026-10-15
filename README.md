@@ -1,37 +1,34 @@
 # SCBL LAN
 
-Windows 局域网启动器与游戏修复/MOD 工程。
+《细胞分裂：黑名单》PC 版的局域网联机工具，内置服务端和游戏修复。可选官方玩法，也有一套围绕“间谍 vs 佣兵”装备与侦测规则调整的 MOD。
 
-公开仓库：[caox233/SCBL-LAN](https://github.com/caox233/SCBL-LAN)。
+**[下载最新版本](https://github.com/caox233/SCBL-LAN/releases/latest)** · [反馈问题](https://github.com/caox233/SCBL-LAN/issues)
 
-程序下载：[GitHub Releases](https://github.com/caox233/SCBL-LAN/releases/latest)。完整程序包由 GitHub Actions 在线编译、测试后发布，不是 Source code 压缩包。
+## 功能
 
-## 玩家
+- **开房联机**：启动器内创建房主，其他玩家填写房主 IP 加入，不用另外配置服务端。
+- **鼠标修复**：支持高回报率鼠标输入，修正佣兵走路与奔跑灵敏度不一致的问题。
+- **视野调整**：支持 1.0–1.3 倍 FOV，官方和 MOD 模式都能用。
+- **存档分开**：官方与 MOD 使用各自的存档；MOD 前三套预设也能改装备、改名字并保存。
 
-完整解压匹配的程序包，运行 `SCBL.LAN.exe`，选择 `Blacklist_DX11_game.exe`。不要混换不同包的 DLL；所有玩家与服务端使用同一完整包。仅在可信局域网或加密组网环境使用，不应直接暴露公网。
+## MOD 改了什么
 
-## 开发
+- 静音鞋蹲走可避开 ATS，分身阻挡裤可制造 RFD 假信号；间谍被侦测时会收到“已暴露”提示。
+- 调整电磁镜、热成像和声呐镜的视距与显示效果，热成像可识别摄像头。
+- 无人机退出操控后仍能侦测，也可重新接管；超载衣可让范围内灯光熄灭 10 秒。
 
-首次按 [构建说明](docs/BUILD.md) 装好编译工具，完整下载或克隆此仓库，然后双击根目录 **`build.cmd`**。所需的 20 项构建资源已随仓库提供，不需要另找资源包。
+目前保留各模式原生人数上限。目镜在部分场景仍可能卡顿，已知问题见[版本说明](docs/RELEASE-NOTES.md)。
 
-它会依次检查环境、运行回归、构建四个组件、打包并验证。成功时显示 ZIP 的绝对路径；失败会停在具体步骤并保留日志，不会拿旧包冒充本次成功。
+## 怎么用
 
-只检查环境：`build.cmd --check`。命令行入口：`python scripts/build.py all`。
+需要自备游戏，仅支持 DX11。联机玩家使用相同版本和游戏模式，并处于同一局域网或虚拟局域网。
 
-完整构建需要 Windows、Visual Studio C++ 工具、固定 Rust nightly、.NET 10 SDK、CMake 和 protoc。首次获取代码依赖需要网络。构建资源通过仓库内清单验证，不能删除二进制资源后仍称为完整源码包。见 [构建说明](docs/BUILD.md)。
+1. 下载 Releases 中的 `SCBL-LAN-*-windows.zip`，完整解压。
+2. 运行 `SCBL.LAN.exe`，选择游戏的 `Blacklist_DX11_game.exe`。
+3. 房主选“创建房主”，其他人选“加入房主”并填写房主 IP，再启动游戏。
 
-## 源码布局
+## 从源码编译
 
-- `src/launcher`：WPF 启动器。
-- `src/native/client/hooks`：主 DLL；`gameplay`：MOD 玩法 DLL。
-- `src/native/server`：联机后台、协议和 SQLite 存储。
-- `src/native/shared`：共享协议、发布身份与完整包校验约定。
-- `tests`：直接调用生产代码的少量核心回归；Rust 单元测试与对应模块放在一起。
-- `scripts`：构建、测试与完整包校验入口。
-- `artifacts`：本地产物，不提交 Git。
+按[构建说明](docs/BUILD.md)装好工具后，双击 `build.cmd`。也可用 [GitHub Actions](https://github.com/caox233/SCBL-LAN/actions/workflows/release.yml) 在线编译。
 
-## 发布边界
-
-仓库提供源码、一键构建入口和清单中的 20 项构建资源。游戏原始加载器、音乐、图片、默认存档模板、打包的第三方二进制和 DirectX 头文件保留来源声明，各自原有权利和使用条件不因本仓库公开而改变。
-
-`LICENSE` 保留上游 GPL-3.0 文本；来源与依赖见 `THIRD_PARTY_NOTICES.txt`。项目维护会话、AI 指令、历史诊断、账号数据库和登录信息不进入源码仓库。默认存档模板为用户明确选定的配置快照，不包含整个个人存档目录或历史备份。
+[代码结构](docs/ARCHITECTURE.md) · [许可证](LICENSE) · [第三方声明](THIRD_PARTY_NOTICES.txt)
