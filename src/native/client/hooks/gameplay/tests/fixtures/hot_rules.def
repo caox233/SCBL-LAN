@@ -1,0 +1,2 @@
+EXPORTS
+    scbl_mod_rules_get_api = _scbl_mod_rules_get_api@12

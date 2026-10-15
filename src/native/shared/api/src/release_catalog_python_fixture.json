@@ -1,0 +1,11 @@
+{
+  "producer": "package_offline.build_release_catalog",
+  "files": {
+    "SCBL.LAN.exe": "MZ fixture SCBL_RELEASE_V1|launcher|scbl-lan-1.0.0-beta1|scbl-lan-v1|END_SCBl artifact",
+    "runtime/0.4.0/uplay_r1_loader.dll": "MZ fixture SCBL_RELEASE_V1|main|scbl-lan-1.0.0-beta1|scbl-lan-v1|END_SCBl artifact",
+    "runtime/0.4.0/mod/scbl_gameplay.dll": "MZ fixture SCBL_RELEASE_V1|gameplay|scbl-lan-1.0.0-beta1|scbl-lan-v1|END_SCBl artifact",
+    "runtime/0.4.0/SCBL.LAN.Server.exe": "MZ fixture SCBL_RELEASE_V1|server|scbl-lan-1.0.0-beta1|scbl-lan-v1|END_SCBl artifact"
+  },
+  "catalog": "{\n  \"compat_id\": \"scbl-lan-v1\",\n  \"components\": [\n    {\n      \"bytes\": 86,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"SCBL.LAN.exe\",\n      \"release_id\": \"scbl-lan-1.0.0-beta1\",\n      \"role\": \"launcher\",\n      \"sha256\": \"a670aecd4f07f6d4dbf9a181f50fff4a7b08918b517f4a85f5da588a87ab4e4a\"\n    },\n    {\n      \"bytes\": 82,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"runtime/0.4.0/uplay_r1_loader.dll\",\n      \"release_id\": \"scbl-lan-1.0.0-beta1\",\n      \"role\": \"main\",\n      \"sha256\": \"f55572f56de7d0d8213fb7ef59bb87c1ec4954dafda683fe1537b3483ca2a355\"\n    },\n    {\n      \"bytes\": 86,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"runtime/0.4.0/mod/scbl_gameplay.dll\",\n      \"release_id\": \"scbl-lan-1.0.0-beta1\",\n      \"role\": \"gameplay\",\n      \"sha256\": \"5943fd4c31cc99b2cb76149e6bf4192973fe895cf2f70282ec701d3aea544e06\"\n    },\n    {\n      \"bytes\": 84,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"runtime/0.4.0/SCBL.LAN.Server.exe\",\n      \"release_id\": \"scbl-lan-1.0.0-beta1\",\n      \"role\": \"server\",\n      \"sha256\": \"050acb383bf35c59128b62c103f85e747c3debe5feec1daac428b75cbcf6246d\"\n    }\n  ],\n  \"release_id\": \"scbl-lan-1.0.0-beta1\",\n  \"schema\": 1\n}\n",
+  "expected_storage_key": "1|scbl-lan-1.0.0-beta1|scbl-lan-v1|e4b11e180f29e584949ffb779fa418401429b62a2399614deae2a91a486ee8db"
+}

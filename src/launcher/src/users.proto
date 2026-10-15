@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+// Keep the wire contract language-neutral while giving the Launcher a stable
+// generated namespace when this shared file is linked by its project.
+option csharp_namespace = "SplinterCellCNLauncher.Network";
+
+package users;
+
+service Users {
+  rpc GetCapabilities(CapabilitiesRequest) returns (CapabilitiesResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  //  rpc Me(MeRequest) returns (MeResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+}
+
+service UsersAdmin {
+  rpc List(ListRequest) returns (ListResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  // rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+message ListRequest {
+  // string query = 1;
+  // int32 limit = 2;
+  // int32 offset = 3;
+}
+
+message ListResponse {
+  repeated User users = 1;
+  int32 total = 2;
+}
+
+message GetRequest { string id = 1; }
+
+message GetResponse { User user = 1; }
+
+// message UpdateRequest {
+//   string id = 1;
+//   string username = 2;
+// }
+
+// message UpdateResponse {
+//   string error = 1;
+//   User user = 2;
+// }
+
+message DeleteRequest { string id = 1; }
+
+message DeleteResponse {}
+
+message User {
+  string id = 1;
+  string username = 2;
+  repeated string ips = 3;
+}
+
+// Fixed role fields: no unknown/duplicate role list ambiguity.
+message ReleaseComponent {
+  string release_id = 1;
+  string compat_id = 2;
+}
+message PackageIdentity {
+  uint32 schema = 1;
+  string release_id = 2;
+  string compat_id = 3;
+  string manifest_sha256 = 4;
+  ReleaseComponent launcher = 5;
+  ReleaseComponent main_dll = 6;
+  ReleaseComponent gameplay_dll = 7;
+  ReleaseComponent server = 8;
+}
+
+message LoginRequest {
+  PackageIdentity package_identity = 11;
+  string client_product = 10;
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string error = 1;
+  string token = 2;
+  User user = 3;
+}
+
+message RegisterRequest {
+  PackageIdentity package_identity = 11;
+  string client_product = 10;
+  string username = 1;
+  string password = 2;
+  string ubi_id = 3;
+}
+
+message RegisterResponse {
+  string error = 1;
+  User user = 2;
+  string recovery_code = 3;
+}
+
+message ResetPasswordRequest {
+  string username = 1;
+  string recovery_code = 2;
+  string new_password = 3;
+}
+
+message ResetPasswordResponse {
+  // A successful reset consumes the old code and returns its replacement.
+  string recovery_code = 1;
+}
+
+message CapabilitiesRequest {}
+message CapabilitiesResponse {
+  string product = 1;
+  uint32 protocol_version = 2;
+  string version = 3;
+  bool ready = 4;
+  bool official_only = 5;
+  uint32 config_port = 6;
+  uint32 content_port = 7;
+  uint32 auth_port = 8;
+  uint32 secure_port = 9;
+}

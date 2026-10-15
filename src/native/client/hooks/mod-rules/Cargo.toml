@@ -1,0 +1,9 @@
+cargo-features = ["per-package-target"]
+[package]
+name = "scbl-mod-rules"
+version = "0.1.0"
+edition = "2021"
+forced-target = "i686-pc-windows-msvc"
+[lib]
+name = "scbl_mod_rules"
+crate-type = ["cdylib"]

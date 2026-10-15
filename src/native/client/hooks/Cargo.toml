@@ -1,0 +1,80 @@
+cargo-features = ["per-package-target"]
+
+[package]
+name = "hooks"
+version = "0.1.0"
+edition = "2021"
+forced-target = "i686-pc-windows-msvc"
+
+
+[lib]
+crate-type = ["cdylib"]
+
+[[bin]]
+name = "hook-loader"
+
+[features]
+diagnostic-evidence = []
+lan-goal-origin = []
+forward_calls = []
+modding = ["hooks-config/modding", "hooks-addresses/modding"]
+patch-free = []
+
+[dependencies]
+anyhow = { workspace = true }
+crossbeam-channel = { workspace = true }
+goblin = { workspace = true }
+hooks-addresses = { path = "hooks-addresses" }
+hooks-config = { path = "hooks-config" }
+hooks-proc = { path = "hooks-proc" }
+hooks-plugin-api = { path = "plugin-api" }
+imgui = { workspace = true }
+region = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+server_api = { path = "../../shared/api", package = "api" }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+toml = { workspace = true }
+tonic = { workspace = true }
+tracing = { workspace = true }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+url = { workspace = true, features = ["serde"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+dll-syringe = "0.17"
+retour = { version = "0.4.0-alpha.4", features = [
+    "thiscall-abi",
+    "static-detour",
+] }
+
+[target.'cfg(target_os = "windows")'.dependencies.hudhook]
+version = "0.8"
+default-features = false
+features = ["dx9", "dx11"]
+
+[target.'cfg(target_os = "windows")'.dependencies.windows]
+version = "0.54.0" # hudhook
+features = [
+    "Win32_Foundation",
+    "Win32_System_Com",
+    "Win32_System_Environment",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_UI_Shell",
+    "Win32_Networking",
+    "Win32_Networking_WinSock",
+    "Win32_NetworkManagement",
+    "Win32_NetworkManagement_IpHelper",
+]
+
+[build-dependencies]
+winres = { workspace = true }
+
+[package.metadata.winres]
+ProductName = "SCBL LAN Hooks"
+FileDescription = "SCBL LAN Official developer build"
+OriginalFilename = "uplay_r1_loader.dll"
+InternalName = "hooks-cn"
+CompanyName = "5th Echelon CN"

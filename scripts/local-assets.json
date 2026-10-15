@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "distribution": "local inputs; permission review required before any public release",
+  "files": {
+    "src/launcher/src/logo.ico": {
+      "sha256": "cd2341f8d25a5066327a0456acb70b944dcf364b5361dbe05c1c526c57999163",
+      "bytes": 360414
+    },
+    "src/launcher/src/Assets/background.png": {
+      "sha256": "d1695f5a2893e168a9e5d3c0f46fc5a5e828276e932e2271f5431e071a925fe8",
+      "bytes": 1892634
+    },
+    "src/launcher/src/Assets/FusionFix.zip": {
+      "sha256": "b807d01b849ca7aead6c04a43eaa2924809d0741e7007b907e00da868f33a7ff",
+      "bytes": 1348213
+    },
+    "src/launcher/src/Assets/launcher_bgm.mp3": {
+      "sha256": "283546ebec766ed8e9fdda25cf7ab3a5dbf31cbb3a78eb7cb8066e05814c6edf",
+      "bytes": 5063711
+    },
+    "src/launcher/src/Assets/SCBL.LAN.Capture.exe": {
+      "sha256": "d34d192bb97a379c4b063c24f7cea6789005b9e5a5584404b701dfd4e7533a11",
+      "bytes": 810496
+    },
+    "src/launcher/src/Assets/uplay_r1_loader.orig.dll": {
+      "sha256": "d098e458b935721478f618b9e2f2a0990ea0d9e907aa9dcac0b5e78d99bb0b89",
+      "bytes": 400912
+    },
+    "src/launcher/src/Assets/DefaultSaves/MOD/00000001.meta": {
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
+      "bytes": 12
+    },
+    "src/launcher/src/Assets/DefaultSaves/MOD/00000001.sav": {
+      "sha256": "905cc472a802ec7aadde1b0b17cabf88183e5ce740caa946a63f479ec6d04633",
+      "bytes": 297002
+    },
+    "src/launcher/src/Assets/DefaultSaves/MOD/00000001.scbl-loadouts": {
+      "sha256": "a2f0e73af341c22c446ed22973ae51906196aa2854fcc5bc87afe281e38f1cbc",
+      "bytes": 27891
+    },
+    "src/launcher/src/Assets/DefaultSaves/MOD/00000002.meta": {
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
+      "bytes": 12
+    },
+    "src/launcher/src/Assets/DefaultSaves/MOD/00000002.sav": {
+      "sha256": "905cc472a802ec7aadde1b0b17cabf88183e5ce740caa946a63f479ec6d04633",
+      "bytes": 297002
+    },
+    "src/launcher/src/Assets/DefaultSaves/Official/00000001.meta": {
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
+      "bytes": 12
+    },
+    "src/launcher/src/Assets/DefaultSaves/Official/00000001.sav": {
+      "sha256": "5bda2ee98904f2705621f40b5ebc5d480ef4fc59f8b4955fea38004ac8443d44",
+      "bytes": 337743
+    },
+    "src/launcher/src/Assets/DefaultSaves/Official/00000002.meta": {
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
+      "bytes": 12
+    },
+    "src/launcher/src/Assets/DefaultSaves/Official/00000002.sav": {
+      "sha256": "5bda2ee98904f2705621f40b5ebc5d480ef4fc59f8b4955fea38004ac8443d44",
+      "bytes": 337743
+    },
+    "src/native/client/hooks/audio/third_party/dxsdk_jun2010/Include/audiodefs.h": {
+      "sha256": "9acaf0edbb84cdf849f2bb1bc93af14ca35bd63e14915eb15a6ced21c53b59a4",
+      "bytes": 10645
+    },
+    "src/native/client/hooks/audio/third_party/dxsdk_jun2010/Include/comdecl.h": {
+      "sha256": "05f35eaf00e747080103aea8413e8a56e4b7ce244bc08edc0ee1490637c6063b",
+      "bytes": 2657
+    },
+    "src/native/client/hooks/audio/third_party/dxsdk_jun2010/Include/XAPO.h": {
+      "sha256": "f1a39a59b2a29ffcdeaa477365054b37d876965e5e477a015e1e0c4315230768",
+      "bytes": 34640
+    },
+    "src/native/client/hooks/audio/third_party/dxsdk_jun2010/Include/XAudio2.h": {
+      "sha256": "7bad5b0c2e27c7c290c0c7c61df7b74cc264c940453190e1463a4f33fa2a2382",
+      "bytes": 62753
+    },
+    "src/native/client/hooks/audio/third_party/dxsdk_jun2010/Include/xma2defs.h": {
+      "sha256": "2c255fddc59dab0b59b03401cd0eff30fdfa3978a33216097201cc7c7558f737",
+      "bytes": 32039
+    }
+  }
+}

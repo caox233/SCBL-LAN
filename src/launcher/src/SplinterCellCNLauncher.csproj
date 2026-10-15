@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <ScblDefaultSaveManifest Condition="'$(ScblDefaultSaveManifest)' == ''">Assets/DefaultSaves/manifest.json</ScblDefaultSaveManifest>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable><Version>1.0.0</Version><Product>SCBL LAN</Product>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <RootNamespace>SplinterCellCNLauncher</RootNamespace>
+    <AssemblyName>SCBL.LAN</AssemblyName>
+	<ApplicationIcon>logo.ico</ApplicationIcon>
+    <!-- 发布时可打开这几项，生成单文件自包含启动器 -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Tomlyn" Version="[2.10.1]" ExcludeAssets="analyzers" />
+    <PackageReference Include="Google.Protobuf" Version="3.35.1" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.80.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.81.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="users.proto" GrpcServices="Client" />
+  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="logo.ico" />
+	</ItemGroup>
+  <!-- Stable native runtime remains external; FusionFix is the frozen offline MOD asset. -->
+
+  <ItemGroup><Resource Include="Assets/background.png" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets/launcher_bgm.mp3" LogicalName="SCBL.LAN.launcher_bgm.mp3" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets/FusionFix.zip" LogicalName="SCBL.LAN.FusionFix.zip" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets/SCBL.LAN.Capture.exe" LogicalName="SCBL.LAN.Capture.exe" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets/uplay_r1_loader.orig.dll" LogicalName="SCBL.LAN.uplay_r1_loader.orig.dll" /></ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/DefaultSaves/Official/*" LogicalName="SCBL.LAN.DefaultSaves.Official.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Assets/DefaultSaves/MOD/*" LogicalName="SCBL.LAN.DefaultSaves.MOD.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="$(ScblDefaultSaveManifest)" LogicalName="SCBL.LAN.DefaultSaves.manifest.json" />
+  </ItemGroup>
+</Project>

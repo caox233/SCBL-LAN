@@ -1,0 +1,15 @@
+{
+  "producer": "package_offline.build_release_catalog",
+  "producer_source_sha256": "49956ef55f8c3d167a6c7ac2bd74da1d605bd6a1fb7e4a9f9656246f3aa428c8",
+  "producer_scope": "actual function; only COMPONENTS destination table replaced with explicit new layout; no assemble/build executed",
+  "release_id": "scbl-lan-layout-v1-fixture",
+  "compat_id": "scbl-lan-v1",
+  "files": {
+    "SCBL.LAN.exe": "MZ fixture SCBL_RELEASE_V1|launcher|scbl-lan-layout-v1-fixture|scbl-lan-v1|END_SCBl artifact",
+    "runtime/uplay_r1_loader.dll": "MZ fixture SCBL_RELEASE_V1|main|scbl-lan-layout-v1-fixture|scbl-lan-v1|END_SCBl artifact",
+    "runtime/scbl_gameplay.dll": "MZ fixture SCBL_RELEASE_V1|gameplay|scbl-lan-layout-v1-fixture|scbl-lan-v1|END_SCBl artifact",
+    "runtime/SCBL.LAN.Server.exe": "MZ fixture SCBL_RELEASE_V1|server|scbl-lan-layout-v1-fixture|scbl-lan-v1|END_SCBl artifact"
+  },
+  "catalog": "{\n  \"compat_id\": \"scbl-lan-v1\",\n  \"components\": [\n    {\n      \"bytes\": 92,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"SCBL.LAN.exe\",\n      \"release_id\": \"scbl-lan-layout-v1-fixture\",\n      \"role\": \"launcher\",\n      \"sha256\": \"48156a64853f4dd5c94d97d0594015ccdb8ab99507394e741e4e0a0ff4243fe3\"\n    },\n    {\n      \"bytes\": 88,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"runtime/uplay_r1_loader.dll\",\n      \"release_id\": \"scbl-lan-layout-v1-fixture\",\n      \"role\": \"main\",\n      \"sha256\": \"65cceba71b2c9bd9f7cd6f28feeba64f471fc9d6a276c9dd22b255f74536b063\"\n    },\n    {\n      \"bytes\": 92,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"runtime/scbl_gameplay.dll\",\n      \"release_id\": \"scbl-lan-layout-v1-fixture\",\n      \"role\": \"gameplay\",\n      \"sha256\": \"81cd0d5c77db1125f97ed16507974d1a0a660d539de6c177d7861f81f905f369\"\n    },\n    {\n      \"bytes\": 90,\n      \"compat_id\": \"scbl-lan-v1\",\n      \"path\": \"runtime/SCBL.LAN.Server.exe\",\n      \"release_id\": \"scbl-lan-layout-v1-fixture\",\n      \"role\": \"server\",\n      \"sha256\": \"561f4d4d8c353a08724c3e1ee07db09498c2f88b24d7b66cf9f030270a11fb00\"\n    }\n  ],\n  \"release_id\": \"scbl-lan-layout-v1-fixture\",\n  \"schema\": 1\n}\n",
+  "expected_storage_key": "1|scbl-lan-layout-v1-fixture|scbl-lan-v1|17ae91b8071f2e2d91d28bfc67f0b89b690401b697f25522a73ffef43c8fa02f"
+}

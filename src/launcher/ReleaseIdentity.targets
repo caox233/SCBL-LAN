@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup><ScblReleaseIdentityImported>true</ScblReleaseIdentityImported></PropertyGroup>
+  <UsingTask TaskName="GenerateScblReleaseIdentity" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup><IdentityFile ParameterType="System.String" Required="true"/><OutputFile ParameterType="System.String" Required="true"/></ParameterGroup>
+    <Task>
+      <Using Namespace="System"/><Using Namespace="System.IO"/><Using Namespace="System.Text.RegularExpressions"/>
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        {
+          // Closed JSON grammar for the two stable prebuild identifiers; rejects unknown/duplicate fields and escapes.
+          string text=File.ReadAllText(IdentityFile);
+          string pair=@"""(release_id|compat_id)""\s*:\s*""([A-Za-z0-9._-]{1,64})""";
+          if (!Regex.IsMatch(text,@"\A\s*\{\s*"+pair+@"\s*,\s*"+pair+@"\s*\}\s*\z")) throw new InvalidDataException("Invalid prebuild release identity");
+          var values=Regex.Matches(text,pair);
+          if (values[0].Groups[1].Value==values[1].Groups[1].Value) throw new InvalidDataException("Duplicate prebuild identity field");
+          string release=values[0].Groups[1].Value=="release_id"?values[0].Groups[2].Value:values[1].Groups[2].Value;
+          string compat=values[0].Groups[1].Value=="compat_id"?values[0].Groups[2].Value:values[1].Groups[2].Value;
+          string code="namespace SplinterCellCNLauncher.Services { internal static class ReleaseBuildIdentity { internal const string ReleaseId = \""+release+"\"; internal const string CompatId = \""+compat+"\"; internal static readonly string LauncherMarker = \"SCBL_RELEASE_V1|launcher|"+release+"|"+compat+"|END_SCBl\"; } }";
+          Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
+          if (!File.Exists(OutputFile) || File.ReadAllText(OutputFile)!=code) File.WriteAllText(OutputFile,code,new System.Text.UTF8Encoding(false));
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <PropertyGroup><ScblReleaseIdentityFile Condition="'$(ScblReleaseIdentityFile)' == ''">$(MSBuildThisFileDirectory)../../release-identity.json</ScblReleaseIdentityFile></PropertyGroup>
+  <Target Name="GenerateScblReleaseIdentitySource" BeforeTargets="CoreCompile">
+    <ItemGroup><_ScblReleaseProvider Include="@(Compile)" Condition="'%(Filename)' == 'ReleasePackage'" /></ItemGroup>
+    <GenerateScblReleaseIdentity Condition="'@(_ScblReleaseProvider)' != ''" IdentityFile="$(ScblReleaseIdentityFile)" OutputFile="$(IntermediateOutputPath)ReleaseBuildIdentity.g.cs" />
+    <ItemGroup><Compile Include="$(IntermediateOutputPath)ReleaseBuildIdentity.g.cs" Condition="'@(_ScblReleaseProvider)' != ''" /></ItemGroup>
+  </Target>
+</Project>

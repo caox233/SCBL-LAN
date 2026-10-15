@@ -1,0 +1,3 @@
+EXPORTS
+    fixture_entry = _fixture_entry@0
+    fixture_invoke = _fixture_invoke@64

@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package misc;
+
+import "users.proto";
+
+service Misc {
+    rpc Event(EventRequest) returns (EventResponse);
+    rpc AcceptInvite(AcceptInviteRequest) returns (AcceptInviteResponse);
+    rpc SetGameSession(SetGameSessionRequest) returns (SetGameSessionResponse);
+    rpc ClearGameSession(ClearGameSessionRequest) returns (ClearGameSessionResponse);
+    rpc TestP2P(TestP2PRequest) returns (TestP2PResponse);
+}
+
+enum InviteKind {
+    INVITE_KIND_UNSPECIFIED = 0;
+    // A manual invitation to the sender's already-created private room.
+    INVITE_KIND_PRIVATE_ROOM = 1;
+    // A manual invitation that establishes persistent lobby-party membership.
+    INVITE_KIND_LOBBY_PARTY = 2;
+    // An automatic event that follows the party leader into an exact room.
+    INVITE_KIND_PARTY_FOLLOW = 3;
+    // An automatic event sent to each surviving member after a new match host
+    // has been selected. Completion is tracked per receiver so one successful
+    // SplitSession cannot hide another client that is still migrating.
+    INVITE_KIND_HOST_MIGRATION_FOLLOW = 5;
+}
+
+message UplayGameSession {
+    uint64 id = 1;
+    bytes data = 2;
+    uint32 flags = 3;
+    bool invite_only = 4;
+}
+
+message EventRequest {}
+message EventResponse {
+    InviteEvent invite = 1;
+    PartyRoster party = 2;
+}
+
+// Authoritative social-party membership. This is independent of the current
+// lobby/match session and lets every retail Uplay compatibility client project
+// the same roster during host migration.
+message PartyRoster {
+    users.User leader = 1;
+    repeated users.User members = 2;
+}
+
+message InviteEvent {
+    int64 id = 1;
+    users.User sender = 2;
+    bool force_join = 3;
+    InviteKind kind = 4;
+    // Present for private-room and party-follow invitations once the host has
+    // published the UPLAY_USER_SetGameSession payload used by retail Uplay.
+    UplayGameSession game_session = 5;
+}
+
+message AcceptInviteRequest {
+    int64 id = 1;
+}
+
+message AcceptInviteResponse {
+    bool accepted = 1;
+    InviteKind kind = 2;
+}
+
+message SetGameSessionRequest {
+    uint64 id = 1;
+    bytes data = 2;
+    uint32 flags = 3;
+    bool invite_only = 4;
+}
+message SetGameSessionResponse {}
+message ClearGameSessionRequest {}
+message ClearGameSessionResponse {}
+
+message TestP2PRequest {
+    bytes challenge = 1;
+}
+message TestP2PResponse {
+    bytes challenge = 2;
+}

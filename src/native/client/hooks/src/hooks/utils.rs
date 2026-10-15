@@ -1,0 +1,78 @@
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::sync::OnceLock;
+
+use super::datatypes::NetFiniteState;
+
+pub fn state_ptr_to_name(state: *mut NetFiniteState) -> String {
+    if state.is_null() {
+        "NULL".to_owned()
+    } else {
+        // Observation does not require exclusive ownership of the native state.
+        let state_ref = unsafe { &*state };
+        format!(
+            "{}(inst={:?}, vtable={:?}, id={:x})",
+            state_ref.get_state_name(),
+            state,
+            state_ref.vtable,
+            state_ref.get_state_id(),
+        )
+    }
+}
+
+pub type StringHash = usize;
+const HASHES: &str = include_str!("../../maphashes.txt");
+static PARSED_HASHES: OnceLock<Arc<HashMap<StringHash, &'static str>>> = OnceLock::new();
+
+pub fn hashes() -> Arc<HashMap<StringHash, &'static str>> {
+    let hashes = PARSED_HASHES.get_or_init(|| {
+        Arc::new(
+            HASHES
+                .split('\n')
+                .filter_map(|line| line.split_once('\t'))
+                .filter_map(|(txt, id)| Some((StringHash::from_str_radix(id.trim_end(), 16).ok()?, txt)))
+                .collect(),
+        )
+    });
+    Arc::clone(hashes)
+}
+
+pub fn id_to_name(id: StringHash) -> String {
+    if let Some(name) = hashes().get(&id) {
+        format!("{name}(id={id:x})")
+    } else {
+        format!("{id:x}")
+    }
+}
+
+pub struct SomeOrQuestionmark<T>(pub Option<T>);
+
+impl<T: std::fmt::Debug> std::fmt::Debug for SomeOrQuestionmark<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        if let Some(t) = &self.0 {
+            write!(f, "{t:?}")
+        } else {
+            write!(f, "???")
+        }
+    }
+}
+
+impl<T: std::fmt::Display> std::fmt::Display for SomeOrQuestionmark<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(t) = &self.0 {
+            write!(f, "{t}")
+        } else {
+            write!(f, "???")
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test] fn shared_dictionary_and_optional_formatters_are_retained() {
+        let a=hashes();let b=hashes();assert!(!a.is_empty());assert!(Arc::ptr_eq(&a,&b));
+        assert_eq!(format!("{} {:?}",SomeOrQuestionmark::<u32>(None),SomeOrQuestionmark(Some(7))),"??? 7");
+        assert_eq!(state_ptr_to_name(std::ptr::null_mut()),"NULL");
+    }
+}

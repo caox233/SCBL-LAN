@@ -1,0 +1,28 @@
+[package]
+name = "quazal"
+version = "2.0.0"
+authors = ["unixoide"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+maintenance-test-seams = []
+
+[dependencies]
+byteorder = { workspace = true }
+derive_more = { workspace = true, features = ["display", "from", "error"] }
+enumflags2 = { workspace = true }
+hmac = { workspace = true }
+md-5 = { workspace = true }
+miniz_oxide = { workspace = true }
+num_enum = { workspace = true }
+num-traits = { workspace = true }
+quazal-macros = { path = "./quazal-macros" }
+rand = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+slog = { workspace = true }
+sloggers = { workspace = true }
+sodiumoxide = { workspace = true }
+toml = { workspace = true }

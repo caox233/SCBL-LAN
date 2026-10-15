@@ -1,0 +1,73 @@
+[workspace]
+members = [
+  "shared/api",
+  "client/hooks",
+  "client/hooks/hooks-addresses",
+  "client/hooks/hooks-config",
+  "client/hooks/hooks-proc",
+  "client/hooks/plugin-api",
+  "client/hooks/gameplay",
+  "client/hooks/mod-rules",
+  "client/hooks/shim-gen",
+  "server/dedicated-server",
+  "server/dedicated-server/config",
+  "server/dedicated-server/sc_bl_protocols",
+  "server/quazal",
+  "server/quazal/quazal-macros",
+]
+resolver = "1"
+
+[patch.'crates-io']
+# hudhook 0.8 requires this imgui fix until it is available in a release.
+imgui = { git = "https://github.com/imgui-rs/imgui-rs", rev = "cb8beeb" }
+
+[profile.release]
+strip = true
+lto = "fat"
+
+[workspace.dependencies]
+anyhow = "1.0"
+argh = "0.1"
+argon2 = "0.6.0-rc.0"
+byteorder = "1.5"
+color-eyre = "0.6"
+crossbeam-channel = "0.5"
+derive_more = "2.0"
+diff = "0.1"
+enumflags2 = "0.7"
+eyre = "0.6"
+goblin = { version = "0.10", default-features = false, features = ["pe32", "pe64", "std"] }
+hmac = "0.12"
+iced-x86 = { version = "1.21", default-features = false, features = ["decoder", "intel", "std"] }
+imgui = "0.12"
+md-5 = "0.10"
+miniz_oxide = "0.8"
+num_enum = "0.7"
+num-traits = "0.2"
+proc-macro-crate = "3.1"
+proc-macro2 = "1.0"
+prost = "0.14"
+quote = "1.0"
+rand = "0.9"
+region = "3.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+slog = { version = "2.7", features = ["max_level_trace"] }
+sloggers = { version = "2.0", features = ["json"] }
+sodiumoxide = "0.2"
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite"] }
+syn = "2.0"
+thiserror = "2.0"
+tokio = { version = "1.36", features = ["rt-multi-thread"] }
+toml = "0.9"
+tonic = "0.14"
+tonic-async-interceptor = "0.14"
+tonic-prost = "0.14"
+tonic-prost-build = "0.14"
+tonic-reflection = "0.14"
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = { version = "2.5", features = ["serde"] }
+winres = "0.1.12"

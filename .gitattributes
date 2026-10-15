@@ -1,0 +1,8 @@
+* text=auto
+*.sh text eol=lf
+*.png binary
+*.ico binary
+*.mp3 binary
+*.zip binary
+*.dll binary
+*.exe binary

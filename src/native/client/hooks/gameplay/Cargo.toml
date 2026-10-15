@@ -1,0 +1,51 @@
+cargo-features = ["per-package-target"]
+
+[package]
+name = "scbl-gameplay"
+version = "0.1.0"
+edition = "2021"
+forced-target = "i686-pc-windows-msvc"
+
+[lib]
+name = "scbl_gameplay"
+crate-type = ["cdylib"]
+
+[features]
+default = []
+# Experimental 12-player native patches are retained, but not shipped enabled.
+extended-player-capacity = []
+# Explicit developer build only. Release gameplay has no external rule dependency.
+dev-hot-reload = []
+# Read-only native lifecycle sampling; does not enable external rule loading.
+native-observation = []
+# Narrow opt-in gameplay candidate; no observation sampler or extended battery.
+goggle-feedback = []
+# Private capture only: 10x the MOD endurance; never enable in distributed builds.
+drone-capture-long-battery = ["native-observation"]
+
+[dependencies]
+server_api = { path = "../../../shared/api", package = "api" }
+hooks-addresses = { path = "../hooks-addresses" }
+hooks-plugin-api = { path = "../plugin-api" }
+region = { workspace = true }
+sha2 = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+retour = { version = "0.4.0-alpha.4", features = [
+  "thiscall-abi",
+  "static-detour",
+] }
+
+[target.'cfg(target_os = "windows")'.dependencies.windows]
+version = "0.54.0"
+features = [
+  "Win32_Foundation",
+  "Win32_System_LibraryLoader",
+]
+
+# Native-memory fixtures need this feature even when invoked from the workspace root.
+[target.'cfg(target_os = "windows")'.dev-dependencies.windows]
+version = "0.54.0"
+features = ["Win32_System_Memory"]
