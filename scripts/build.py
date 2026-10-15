@@ -110,7 +110,7 @@ def assets(source=None):
    else:pending[name]=data
  finally:
   if archive:archive.close()
- if missing:raise RuntimeError('Required local assets missing/mismatched:\n'+'\n'.join(missing)+'\nProvide authorized build-assets.zip in the repository root, or use --asset-dir <ZIP-or-directory>. See docs/BUILD.md. No files were imported.')
+ if missing:raise RuntimeError('Required bundled assets missing/mismatched:\n'+'\n'.join(missing)+'\nRe-download the complete source checkout including bundled assets. For manual repair only, use matching build-assets.zip or --asset-dir <ZIP-or-directory>. See docs/BUILD.md. No files were imported.')
  # Validate every input first; never extract unlisted ZIP entries.
  for name,data in pending.items():
   p=ROOT/name;p.parent.mkdir(parents=True,exist_ok=True)

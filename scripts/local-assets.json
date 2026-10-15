@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "distribution": "local inputs; permission review required before any public release",
+  "distribution": "Bundled build inputs tracked in source; retained third-party notices apply. No public upload has been performed.",
   "files": {
     "src/launcher/src/logo.ico": {
       "sha256": "cd2341f8d25a5066327a0456acb70b944dcf364b5361dbe05c1c526c57999163",
@@ -27,40 +27,40 @@
       "bytes": 400912
     },
     "src/launcher/src/Assets/DefaultSaves/MOD/00000001.meta": {
-      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
-      "bytes": 12
+      "bytes": 12,
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16"
     },
     "src/launcher/src/Assets/DefaultSaves/MOD/00000001.sav": {
-      "sha256": "905cc472a802ec7aadde1b0b17cabf88183e5ce740caa946a63f479ec6d04633",
-      "bytes": 297002
+      "bytes": 297865,
+      "sha256": "ee506410bc0046ac23a5e15624270810826ffca0e72b28f03961c0aa052f2cf8"
     },
     "src/launcher/src/Assets/DefaultSaves/MOD/00000001.scbl-loadouts": {
-      "sha256": "a2f0e73af341c22c446ed22973ae51906196aa2854fcc5bc87afe281e38f1cbc",
-      "bytes": 27891
+      "bytes": 28706,
+      "sha256": "972e49fb68cfca8f5db4726ddcce0f53c95f681a5179bf142505d23a41f11487"
     },
     "src/launcher/src/Assets/DefaultSaves/MOD/00000002.meta": {
-      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
-      "bytes": 12
+      "bytes": 12,
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16"
     },
     "src/launcher/src/Assets/DefaultSaves/MOD/00000002.sav": {
-      "sha256": "905cc472a802ec7aadde1b0b17cabf88183e5ce740caa946a63f479ec6d04633",
-      "bytes": 297002
+      "bytes": 297865,
+      "sha256": "ee506410bc0046ac23a5e15624270810826ffca0e72b28f03961c0aa052f2cf8"
     },
     "src/launcher/src/Assets/DefaultSaves/Official/00000001.meta": {
-      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
-      "bytes": 12
+      "bytes": 12,
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16"
     },
     "src/launcher/src/Assets/DefaultSaves/Official/00000001.sav": {
-      "sha256": "5bda2ee98904f2705621f40b5ebc5d480ef4fc59f8b4955fea38004ac8443d44",
-      "bytes": 337743
+      "bytes": 337743,
+      "sha256": "5bda2ee98904f2705621f40b5ebc5d480ef4fc59f8b4955fea38004ac8443d44"
     },
     "src/launcher/src/Assets/DefaultSaves/Official/00000002.meta": {
-      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16",
-      "bytes": 12
+      "bytes": 12,
+      "sha256": "375911d87397d8ec7d1d33fbf0dd7a0a6ca152b7c7e5b0d16adf572932bd5f16"
     },
     "src/launcher/src/Assets/DefaultSaves/Official/00000002.sav": {
-      "sha256": "5bda2ee98904f2705621f40b5ebc5d480ef4fc59f8b4955fea38004ac8443d44",
-      "bytes": 337743
+      "bytes": 337743,
+      "sha256": "5bda2ee98904f2705621f40b5ebc5d480ef4fc59f8b4955fea38004ac8443d44"
     },
     "src/native/client/hooks/audio/third_party/dxsdk_jun2010/Include/audiodefs.h": {
       "sha256": "9acaf0edbb84cdf849f2bb1bc93af14ca35bd63e14915eb15a6ced21c53b59a4",

@@ -7,3 +7,9 @@
 *.zip binary
 *.dll binary
 *.exe binary
+
+# Preserve hash-bound save and SDK inputs exactly across checkout platforms.
+*.sav binary
+*.meta binary
+*.scbl-loadouts binary
+src/native/client/hooks/audio/third_party/dxsdk_jun2010/Include/*.h -text

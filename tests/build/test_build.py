@@ -102,4 +102,22 @@ class BuildEntryTests(unittest.TestCase):
   r=subprocess.run([str(Path(os.environ['SystemRoot'])/'System32/cmd.exe'),'/d','/c',str(REPO/'build.cmd'),'--help'],cwd=self.root,env=env,capture_output=True)
   self.assertEqual(r.returncode,0,r.stdout+r.stderr);self.assertIn(b'--check',r.stdout)
 
+class BundledInputTests(unittest.TestCase):
+ def test_all_bundled_assets_match_manifest(self):
+  rows=json.loads((REPO/'scripts/local-assets.json').read_text(encoding='utf-8-sig'))['files']
+  self.assertEqual(len(rows),20)
+  for name,row in rows.items():
+   with self.subTest(name=name):
+    data=(REPO/name).read_bytes();self.assertEqual(len(data),row['bytes']);self.assertEqual(hashlib.sha256(data).hexdigest(),row['sha256'])
+ def test_save_template_files_match_manifest(self):
+  root=REPO/'src/launcher/src/Assets/DefaultSaves';rows=json.loads((root/'manifest.json').read_text(encoding='utf-8-sig'))['Files']
+  self.assertEqual(len(rows),9)
+  for name,row in rows.items():
+   with self.subTest(name=name):
+    data=(root/name).read_bytes();self.assertEqual(len(data),row['bytes']);self.assertEqual(hashlib.sha256(data).hexdigest(),row['sha256'])
+ def test_mod_sidecar_keeps_six_current_records_and_checksum(self):
+  import struct
+  data=(REPO/'src/launcher/src/Assets/DefaultSaves/MOD/00000001.scbl-loadouts').read_bytes()
+  self.assertEqual(data[:8],b'SCBLLDO1');self.assertEqual(struct.unpack_from('<HH',data,8),(3,6));self.assertEqual(hashlib.sha256(data[:-32]).digest(),data[-32:])
+
 if __name__=='__main__':unittest.main()

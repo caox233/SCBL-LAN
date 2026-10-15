@@ -4,6 +4,6 @@ The existing upstream GPL-3.0 LICENSE is retained. Native protocol/server code r
 
 .NET/WPF, Rust crates, Google.Protobuf/gRPC and Tomlyn remain subject to their respective upstream licenses. Cargo.lock and the project files identify build dependencies. The Tomlyn notice is retained in src/launcher/src/ThirdPartyNotices.
 
-The local launcher build also uses music/images, FusionFix, a diagnostic capture executable, an original Ubisoft loader and default save templates. The native audio build uses DirectX SDK headers. These local inputs are listed in scripts/local-assets.json and excluded from the Git index while provenance and redistribution permission are reviewed. Local possession and a successful build are not clearance for public redistribution.
+The launcher build also uses music/images, FusionFix, a diagnostic capture executable, an original Ubisoft loader and user-selected default save templates. The native audio build uses DirectX SDK headers. These 20 inputs are listed in scripts/local-assets.json and included in the local Git repository to make complete source checkouts buildable. This does not relicense third-party material or assert public redistribution clearance. No public upload has been performed by this preparation step.
 
 The local validation package is rebuilt from the reorganized source. No VPN client is bundled. Public source and binary publication require separate review of the retained upstream notices and these local inputs.
