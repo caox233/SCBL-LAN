@@ -4,6 +4,8 @@ Windows 局域网启动器与游戏修复/MOD 工程。
 
 公开仓库：[caox233/SCBL-LAN](https://github.com/caox233/SCBL-LAN)。
 
+程序下载：[GitHub Releases](https://github.com/caox233/SCBL-LAN/releases/latest)。完整程序包由 GitHub Actions 在线编译、测试后发布，不是 Source code 压缩包。
+
 ## 玩家
 
 完整解压匹配的程序包，运行 `SCBL.LAN.exe`，选择 `Blacklist_DX11_game.exe`。不要混换不同包的 DLL；所有玩家与服务端使用同一完整包。仅在可信局域网或加密组网环境使用，不应直接暴露公网。

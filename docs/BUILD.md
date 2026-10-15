@@ -1,5 +1,13 @@
 # 一键构建（Windows x64）
 
+## GitHub Actions 在线编译与发布
+
+在仓库 **Actions → Build and publish Windows release → Run workflow** 中选择 `main`，填写与启动器版本一致的标签（当前 `v1.0.0`），保留 `publish=true` 即可在线构建并发布 Releases。取消 publish 则只生成 Actions 构建产物；推送 `v*` 标签也会触发发布。
+
+云端使用 GitHub 托管的 Windows 2022、固定 Rust nightly、.NET SDK 和带 SHA256 校验的 protoc，复用下述本地构建入口。只有完整构建、回归、包校验和启动器隔离检查通过后，独立发布任务才获得仓库写权限，并上传本轮生成的程序包、校验文件及构建来源记录。上传后重新下载核对，再公开 Release；不会覆盖同名已发布版本。无需上传个人 token、本机配置或本地编译包。
+
+失败时不会发布，原始构建日志保留在对应 Actions 运行的 `build-diagnostics` 产物中。后续版本先更新源码版本／发布身份和 `docs/RELEASE-NOTES.md`，再创建新标签。
+
 ## 最短流程
 
 1. 下载源码 ZIP 后完整解压，或 Git clone。建议使用短路径，例如 `C:\src\SCBL-LAN`。

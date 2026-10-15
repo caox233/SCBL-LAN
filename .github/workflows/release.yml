@@ -1,0 +1,115 @@
+name: Build and publish Windows release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag matching the launcher version (for example v1.0.0)
+        required: true
+        default: v1.0.0
+        type: string
+      publish:
+        description: Publish to GitHub Releases after verification
+        required: true
+        default: true
+        type: boolean
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+  PYTHONUTF8: '1'
+  SCBL_NO_PAUSE: '1'
+
+jobs:
+  build:
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.302'
+      - name: Validate release version
+        run: python scripts/release_ci.py check --tag "$env:RELEASE_TAG"
+      - name: Install pinned native toolchain
+        id: native
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          rustup toolchain install nightly-2025-10-15 --profile minimal --target i686-pc-windows-msvc
+          if ($LASTEXITCODE -ne 0) { throw 'Rust toolchain installation failed' }
+          $zip = Join-Path $env:RUNNER_TEMP 'protoc-35.1-win64.zip'
+          Invoke-WebRequest 'https://github.com/protocolbuffers/protobuf/releases/download/v35.1/protoc-35.1-win64.zip' -OutFile $zip
+          if ((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne '5d3ff218d7d91eea95f7569bcb5a98f3030f8996d44151279d9772edcff76082') { throw 'protoc checksum mismatch' }
+          $protoc = Join-Path $env:RUNNER_TEMP 'protoc-35.1'
+          Expand-Archive -LiteralPath $zip -DestinationPath $protoc
+          "PROTOC=$protoc\bin\protoc.exe" >> $env:GITHUB_ENV
+          "image=$env:ImageVersion" >> $env:GITHUB_OUTPUT
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.nuget/packages
+            artifacts/cargo
+          key: windows-2022-${{ steps.native.outputs.image }}-rust-20251015-${{ hashFiles('src/native/Cargo.lock', 'src/native/**/*.rs', 'src/native/**/*.toml', 'release-identity.json') }}
+          restore-keys: |
+            windows-2022-${{ steps.native.outputs.image }}-rust-20251015-
+      - name: Build, test and verify all four components
+        shell: pwsh
+        run: |
+          python -B scripts/build.py all
+          if ($LASTEXITCODE -ne 0) { throw 'Complete build failed' }
+      - name: Verify packaged launcher and prepare release assets
+        run: python -B scripts/release_ci.py prepare --tag "$env:RELEASE_TAG"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets
+          path: artifacts/release/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Retain build diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: build-diagnostics
+          path: |
+            artifacts/logs/**
+            artifacts/package-checks/**
+            artifacts/BUILD-RESULT.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  publish:
+    needs: build
+    if: github.event_name == 'push' || inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: artifacts/release
+      - name: Publish verified cloud-built package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -B scripts/release_ci.py publish --tag "$RELEASE_TAG"
