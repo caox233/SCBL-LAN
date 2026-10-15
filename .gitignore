@@ -1,5 +1,7 @@
 /artifacts/
 /build.local.json
+/build-assets.zip
+/build-assets/
 /data/
 **/obj/
 **/target/

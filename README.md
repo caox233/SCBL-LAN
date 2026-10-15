@@ -8,14 +8,15 @@ Windows 局域网启动器与游戏修复/MOD 工程。当前基于 1.0 R2 整�
 
 ## 开发
 
-```powershell
-python scripts/build.py doctor
-python scripts/build.py test
-python scripts/build.py build
-python scripts/build.py verify
-```
+首次按 [构建说明](docs/BUILD.md) 装好编译工具、准备合法持有的构建资源，然后双击根目录 **`build.cmd`**。
+
+它会依次检查环境、运行回归、构建四个组件、打包并验证。成功时显示 ZIP 的绝对路径；失败会停在具体步骤并保留日志，不会拿旧包冒充本次成功。
+
+只检查环境：`build.cmd --check`。命令行入口：`python scripts/build.py all`。
 
 完整构建需要 Windows、Visual Studio C++ 工具、固定 Rust nightly、.NET 10 SDK、CMake、protoc 以及本地资源。首次获取依赖需要网络；本地资源不会自动下载。见 [构建说明](docs/BUILD.md)。
+
+**目前仅下载源码还不足以生成完整包**：游戏加载器、音乐等 20 项输入未纳入 Git，需另行准备匹配资源。公开分发方案仍待授权审查，不能用一键脚本绕过它。
 
 ## 源码布局
 

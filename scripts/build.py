@@ -1,6 +1,7 @@
 """Local build/test/package entry. Never installs, launches the game, or publishes."""
-from pathlib import Path
-import argparse,hashlib,json,os,shutil,subprocess,sys,datetime,zipfile
+from pathlib import Path,PurePosixPath
+from contextlib import contextmanager
+import argparse,hashlib,json,os,shutil,subprocess,sys,datetime,zipfile,time
 ROOT=Path(__file__).resolve().parents[1]
 ART=ROOT/'artifacts'
 CONFIG=json.loads((ROOT/'build.local.json').read_text(encoding='utf-8-sig')) if (ROOT/'build.local.json').exists() else {}
@@ -12,16 +13,33 @@ def digest(p):
 def read(p):return json.loads(p.read_text(encoding='utf-8-sig'))
 def write(p,x):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(x,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 def run(label,args,cwd=None,env=None):
+ args=list(map(str,args))
+ # On Windows CreateProcess does not use the replacement env PATH to find exe.
+ if not Path(args[0]).is_absolute():
+  resolved=shutil.which(args[0],path=(env or os.environ).get('PATH'))
+  if resolved:args[0]=resolved
  folder=ART/'logs';folder.mkdir(parents=True,exist_ok=True)
  stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
  base=folder/(stamp+'-'+label)
  print('RUN',label,' '.join(map(str,args)),flush=True)
  with base.with_suffix('.stdout.txt').open('wb') as out,base.with_suffix('.stderr.txt').open('wb') as err:
-  p=subprocess.run(list(map(str,args)),cwd=cwd or ROOT,env=env,stdout=out,stderr=err)
+  try:p=subprocess.Popen(list(map(str,args)),cwd=cwd or ROOT,env=env,stdout=out,stderr=err)
+  except OSError as e:
+   err.write((str(e)+'\n').encode('utf-8'))
+   write(base.with_suffix('.json'),{'command':list(map(str,args)),'cwd':str(cwd or ROOT),'exit_code':None,'launch_error':str(e)})
+   raise RuntimeError(f'{label} could not start; logs: {base}') from e
+  started=time.monotonic()
+  try:
+   while True:
+    try:p.wait(timeout=15);break
+    except subprocess.TimeoutExpired:print('WORKING',label,f'{int(time.monotonic()-started)}s; logs: {base}',flush=True)
+  except KeyboardInterrupt:
+   p.terminate();p.wait();raise
  write(base.with_suffix('.json'),{'command':list(map(str,args)),'cwd':str(cwd or ROOT),'exit_code':p.returncode})
  print('EXIT',label,p.returncode,flush=True)
  if p.returncode:
-  print(base.with_suffix('.stderr.txt').read_text(encoding='utf-8',errors='replace')[-6000:])
+  for suffix in ('.stdout.txt','.stderr.txt'):
+   print(base.with_suffix(suffix).read_text(encoding='utf-8',errors='replace')[-6000:])
   raise RuntimeError(f'{label} failed ({p.returncode}); logs: {base}')
  return base
 def dotnet():
@@ -30,6 +48,7 @@ def dotnet():
  return p
 def native_env():
  env=os.environ.copy();tc=CONFIG.get('toolchain_root')
+ original_path=env.get('PATH',env.get('Path',''))
  if tc:
   tc=Path(tc);env['CARGO_HOME']=str(tc/'cargo');env['RUSTUP_HOME']=str(tc/'rustup');env['PROTOC']=str(tc/'protoc-35.1/bin/protoc.exe')
  cargo=str(Path(env.get('CARGO_HOME',Path.home()/'.cargo'))/'bin/cargo.exe')
@@ -45,28 +64,109 @@ def native_env():
  for line in raw.splitlines():
   if '=' in line and not line.startswith('='):
    k,v=line.split('=',1);env[k]=v
- path=env.pop('Path',env.get('PATH',''));env['PATH']=str(Path(cargo).parent)+';'+path
+ path=env.pop('Path',env.get('PATH',''))
+ cmake=Path(vs)/'Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin'
+ if not (cmake/'cmake.exe').exists():
+  found=subprocess.check_output([str(vswhere),'-latest','-products','*','-requires','Microsoft.VisualStudio.Component.VC.CMake.Project','-find',r'Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe'],env=clean,text=True).strip().splitlines()
+  if found:cmake=Path(found[0]).parent
+ env['PATH']=merge_paths(str(Path(cargo).parent),str(cmake),path,original_path)
  env['CARGO_TARGET_DIR']=str(Path(CONFIG.get('cargo_target_dir',ART/'cargo')).resolve())
  env['CARGO_INCREMENTAL']='0'
  # Match the accepted R2 build policy. Do not inherit private diagnostic build modes.
  for k in ('SCBL_VISION_CAUSAL_BUILD','SCBL_VISION_COMPARE_BUILD','SCBL_WEAPON_DIAGNOSTICS'):env.pop(k,None)
  env['SCBL_EMF_CONSTANT_REUSE_BUILD']='1';env['SCBL_THERMAL_MATERIAL_OBSERVER_BUILD']='1'
  return cargo,env
+def merge_paths(*values):
+ seen=set();parts=[]
+ for value in values:
+  for part in value.split(';'):
+   key=part.rstrip('\\/').casefold()
+   if key and key not in seen:seen.add(key);parts.append(part)
+ return ';'.join(parts)
+
+def asset_source(explicit=None):
+ if explicit is not None:return Path(explicit)
+ if CONFIG.get('asset_dir'):return Path(CONFIG['asset_dir']).expanduser().resolve()
+ return next((p for p in (ROOT/'build-assets.zip',ROOT/'build-assets') if p.exists()),None)
+
 def assets(source=None):
  rows=read(ROOT/'scripts/local-assets.json')['files'];missing=[]
- for name,row in rows.items():
-  p=ROOT/name
-  if source and not p.exists():
-   q=Path(source)/name
-   if q.is_file() and digest(q)==row['sha256']:p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(q,p)
-  if not p.is_file() or digest(p)!=row['sha256']:missing.append(name)
- if missing:raise RuntimeError('Required local assets missing/mismatched (not downloaded automatically):\n'+'\n'.join(missing))
- print('ASSETS_OK',len(rows))
+ pending={};source=asset_source(source)
+ archive=zipfile.ZipFile(source) if source and source.is_file() else None
+ try:
+  for name,row in rows.items():
+   rel=PurePosixPath(name)
+   if rel.is_absolute() or '..' in rel.parts or ':' in name or '\\' in name:raise RuntimeError('Unsafe asset manifest path: '+name)
+   p=ROOT/name
+   if p.exists():
+    if not p.is_file() or digest(p)!=row['sha256']:missing.append(name+' (existing file differs; not overwritten)')
+    continue
+   data=None
+   if archive:
+    entries=[x for x in archive.infolist() if x.filename==name]
+    if len(entries)==1 and entries[0].file_size==row['bytes']:data=archive.read(entries[0])
+   elif source and (source/name).is_file():data=(source/name).read_bytes()
+   if data is None or len(data)!=row['bytes'] or hashlib.sha256(data).hexdigest()!=row['sha256']:missing.append(name)
+   else:pending[name]=data
+ finally:
+  if archive:archive.close()
+ if missing:raise RuntimeError('Required local assets missing/mismatched:\n'+'\n'.join(missing)+'\nProvide authorized build-assets.zip in the repository root, or use --asset-dir <ZIP-or-directory>. See docs/BUILD.md. No files were imported.')
+ # Validate every input first; never extract unlisted ZIP entries.
+ for name,data in pending.items():
+  p=ROOT/name;p.parent.mkdir(parents=True,exist_ok=True)
+  with p.open('xb') as f:f.write(data)
+ print('ASSETS_OK',len(rows),'imported='+str(len(pending)))
 def doctor():
- assets();run('dotnet-version',[dotnet(),'--version']);cargo,env=native_env();run('rust-version',[cargo,'--version'],ROOT/'src/native',env)
- run('protoc-version',[env.get('PROTOC','protoc'),'--version'],env=env)
+ errors=[]
+ if os.name!='nt':raise RuntimeError('Windows x64 is required for the WPF launcher and native DLLs.')
+ try:assets()
+ except Exception as e:errors.append(str(e))
+ try:run('dotnet-version',[dotnet(),'--version'])
+ except Exception as e:errors.append('.NET SDK: '+str(e))
+ try:
+  cargo,env=native_env()
+  for label,args in [('rust-version',[cargo,'--version']),('git-version',['git','--version']),('cmake-version',['cmake','--version']),('protoc-version',[env.get('PROTOC','protoc'),'--version'])]:
+   try:run(label,args,ROOT/'src/native',env)
+   except Exception as e:errors.append(label+': '+str(e))
+ except Exception as e:errors.append('Native toolchain: '+str(e))
+ if errors:raise RuntimeError('BUILD REQUIREMENTS NOT READY:\n\n'+'\n\n'.join(errors)+'\n\nSetup instructions: '+str(ROOT/'docs/BUILD.md'))
  print('DOCTOR_OK independent project configuration')
+
+@contextmanager
+def build_lock():
+ # The OS releases this lock on exit/crash; never remove a competing lock.
+ import msvcrt
+ ART.mkdir(parents=True,exist_ok=True)
+ with (ART/'.build.lock').open('a+b') as f:
+  f.seek(0,os.SEEK_END)
+  if f.tell()==0:f.write(b'0');f.flush()
+  f.seek(0)
+  try:msvcrt.locking(f.fileno(),msvcrt.LK_NBLCK,1)
+  except OSError:raise RuntimeError('Another build/test is running in this checkout; wait for it to finish.') from None
+  try:yield
+  finally:f.seek(0);msvcrt.locking(f.fileno(),msvcrt.LK_UNLCK,1)
+
+def all_steps():
+ for name,action in [('1/4 Check requirements',doctor),('2/4 Regression tests',test),('3/4 Build and package',build),('4/4 Verify complete package',verify_latest)]:
+  print('\n=== '+name+' ===',flush=True);action()
+ print('BUILD_SUCCESS',read(ART/'BUILD-RESULT.json')['archive'],flush=True)
+
+def verify_latest(package=None):
+ from verify_package import verify
+ if package is None:
+  receipt=ART/'BUILD-RESULT.json'
+  package=read(receipt)['program'] if receipt.exists() else ART/'program'/read(ROOT/'release-identity.json')['release_id']
+ verify(package)
+
+def output_paths(release_id):
+ if not release_id or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-' for c in release_id) or release_id in {'.','..'}:raise RuntimeError('Unsafe release_id')
+ name=release_id
+ while True:
+  out=ART/'program'/name;archive=ART/(name+'-program.zip')
+  if not out.exists() and not archive.exists():return out,archive
+  name=release_id+'-build-'+datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
 def test():
+ run('test-build-entry',[sys.executable,'-B','-m','unittest','discover','-s',ROOT/'tests/build','-v'])
  # Existing tests call actual production classes; no historical source-text extraction.
  for name in ('PortPlan','BackgroundTaskRegression'):
   run('test-'+name,[dotnet(),'run','--project',ROOT/f'tests/{name}/{name}.csproj','-c','Release','--no-launch-profile'])
@@ -92,8 +192,7 @@ def build():
 def package(components):
  from package_catalog import build_release_catalog
  from verify_package import verify
- identity=read(ROOT/'release-identity.json');out=ART/'program'/identity['release_id']
- if out.exists():raise RuntimeError(f'Output already exists; preserve it or choose a new release_id: {out}')
+ identity=read(ROOT/'release-identity.json');out,archive=output_paths(identity['release_id'])
  out.mkdir(parents=True)
  names={'launcher':'SCBL.LAN.exe','main':'runtime/uplay_r1_loader.dll','gameplay':'runtime/scbl_gameplay.dll','server':'runtime/SCBL.LAN.Server.exe'}
  program={}
@@ -111,7 +210,6 @@ def package(components):
  sums=''.join(digest(p)+'  '+p.relative_to(out).as_posix()+'\n' for p in sorted(out.rglob('*')) if p.is_file())
  (out/'package/SHA256SUMS.txt').write_text(sums,encoding='utf-8')
  verify(out)
- archive=ART/(identity['release_id']+'-program.zip')
  with zipfile.ZipFile(archive,'x',zipfile.ZIP_DEFLATED) as z:
   for p in sorted(out.rglob('*')):
    if p.is_file():z.write(p,p.relative_to(out).as_posix())
@@ -119,14 +217,17 @@ def package(components):
  write(ART/'BUILD-RESULT.json',{'status':'built-and-package-verified','release':identity,'program':str(out),'archive':str(archive),'archive_sha256':digest(archive),'components':{k:{'path':names[k],'sha256':digest(out/names[k])} for k in names},'game_tested':False,'published':False})
  print('PACKAGE_OK',out,archive,flush=True)
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['doctor','assets','test','build','verify']);p.add_argument('--asset-dir',type=Path);p.add_argument('--package',type=Path);a=p.parse_args()
- if a.action=='assets':assets(a.asset_dir)
- elif a.action=='doctor':doctor()
- elif a.action=='test':test()
- elif a.action=='build':build()
+ p=argparse.ArgumentParser(description=__doc__)
+ p.add_argument('action',choices=['all','doctor','assets','test','build','verify'],nargs='?',default='all')
+ p.add_argument('--asset-dir',type=Path,help='Authorized asset ZIP or directory; never downloaded automatically')
+ p.add_argument('--package',type=Path);p.add_argument('--check',action='store_true',help='Check requirements only; do not compile');a=p.parse_args()
+ if sys.version_info<(3,11):raise RuntimeError('Python 3.11+ is required')
+ if a.asset_dir:CONFIG['asset_dir']=str(a.asset_dir.resolve())
+ if a.check:a.action='doctor'
+ if a.action=='verify':verify_latest(a.package)
  else:
-  from verify_package import verify
-  verify(a.package or ART/'program'/read(ROOT/'release-identity.json')['release_id'])
+  with build_lock():
+   {'all':all_steps,'doctor':doctor,'assets':assets,'test':test,'build':build}[a.action]()
 if __name__=='__main__':
  try:main()
  except Exception as e:print('ERROR',str(e),file=sys.stderr);sys.exit(1)
